@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Logs {
+  id            String    @id @db.Uuid
+  created_at    DateTime  @db.Timestamp
+  updated_at    DateTime? @db.Timestamp
+  status_code   Int       @db.Integer
+  full_response Json      @db.JsonB
+  request       Json?     @db.JsonB
+  url           String    @db.Text
+
+  @@map("logs")
+}
+
+model Poli {
+  id                   String    @id @db.Uuid
+  created_at           DateTime  @db.Timestamp
+  updated_at           DateTime? @db.Timestamp
+  resource_type        String    @db.VarChar(100)
+  identifier           Json      @db.JsonB
+  status               String    @db.VarChar(20)
+  name                 String    @db.VarChar(255)
+  description          String    @db.Text
+  mode                 String    @db.VarChar(100)
+  telecom              Json      @db.JsonB
+  physical_type        Json      @db.JsonB
+  position             Json      @db.JsonB
+  managingOrganization Json      @db.JsonB
+
+  @@map("poli")
+}
+
+model Perawat {
+  id         String    @id @db.Uuid
+  created_at DateTime  @db.Timestamp
+  updated_at DateTime? @db.Timestamp
+  name       String    @db.VarChar(255)
+  address    String    @db.Text
+  phone      String    @db.VarChar(20)
+
+  poli_perawat PoliPerawat[]
+
+  @@map("perawat")
+}
+
+model PoliPerawat {
+  id           String    @id @db.Uuid
+  created_at   DateTime  @db.Timestamp
+  updated_at   DateTime? @db.Timestamp
+  perawat_id   String    @db.Uuid
+  poli_name    String    @db.VarChar(255)
+  poli_address String    @db.Text
+
+  perawat Perawat @relation(fields: [perawat_id], references: [id])
+
+  @@map("poli_perawat")
+}
